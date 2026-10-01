@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De enero a enero 🖤 Morfina</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=VT323&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-dark: #0a0a0d;
+    --card-bg: rgba(20, 15, 25, 0.90);
+    --pink-neon: #ff2a85;
+    --pink-pastel: #ffb6c1;
+    --border-pink: rgba(255, 42, 133, 0.4);
+  }
+
+  body {
+    background-color: var(--bg-dark);
+    color: #f7edf5;
+    font-family: 'Playfair Display', serif;
+    overflow-x: hidden;
+    background-image: 
+      radial-gradient(circle at 15% 30%, rgba(255, 42, 133, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 85% 70%, rgba(147, 51, 234, 0.08) 0%, transparent 50%),
+      linear-gradient(rgba(20, 15, 25, 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(20, 15, 25, 0.5) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+  }
+
+  .font-cinzel { font-family: 'Cinzel', serif; }
+  .font-pixel { font-family: 'VT323', monospace; }
+
+  .alt-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-pink);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), inset 0 0 20px rgba(255, 42, 133, 0.1);
+    backdrop-filter: blur(10px);
+  }
+
+  /* Smoke Animation */
+  .smoke-container {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 40px;
+    pointer-events: none;
+  }
+  .smoke-particle {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: rgba(200, 200, 200, 0.5);
+    border-radius: 50%;
+    filter: blur(3px);
+    animation: rise 3s infinite ease-in;
+  }
+  .smoke-particle:nth-child(2) { animation-delay: 1s; left: 30%; }
+  .smoke-particle:nth-child(3) { animation-delay: 2s; left: 70%; }
+
+  @keyframes rise {
+    0% { transform: translateY(0) scale(1); opacity: 0.8; }
+    100% { transform: translateY(-50px) scale(4); opacity: 0; }
+  }
+
+  /* Equalizer Animation */
+  .bar {
+    width: 3px;
+    height: 12px;
+    background-color: var(--pink-neon);
+    border-radius: 2px;
+    animation: bounce 0.6s ease-in-out infinite alternate;
+  }
+  .bar:nth-child(1) { animation-delay: 0.0s; }
+  .bar:nth-child(2) { animation-delay: 0.2s; }
+  .bar:nth-child(3) { animation-delay: 0.1s; }
+  .bar:nth-child(4) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0% { height: 4px; opacity: 0.5; }
+    100% { height: 18px; opacity: 1; }
+  }
+
+  .playing .bar { animation-play-state: running; }
+  .paused .bar { animation-play-state: paused; height: 4px; }
+
+  /* Floating Particles */
+  .floating-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .float-item {
+    position: absolute;
+    bottom: -50px;
+    animation: floatUp linear forwards;
+    filter: drop-shadow(0 0 5px rgba(255, 42, 133, 0.6));
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
+    15% { opacity: 0.8; }
+    85% { opacity: 0.8; }
+    100% { transform: translateY(-120vh) rotate(45deg) scale(1.2); opacity: 0; }
+  }
+
+  .glow-text { text-shadow: 0 0 15px rgba(255, 42, 133, 0.7); }
+</style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center relative selection:bg-pink-700 selection:text-white">
+
+<div class="floating-container" id="floatingParticles"></div>
+
+<!-- EXACT AUDIO TAG AS REQUESTED -->
+<audio id="bgMusic" src="https://files.catbox.moe/1cwmu2.mp3" loop preload="auto"></audio>
+
+<header class="w-full max-w-3xl px-4 pt-6 z-30 flex justify-between items-center gap-4">
+  
+  <div class="flex items-center gap-3 bg-black/80 backdrop-blur-md px-4 py-2 rounded-full border border-pink-900/60 shadow-lg">
+    <span class="text-pink-500">🦇</span>
+    <span class="text-xs font-cinzel text-pink-pastel tracking-widest font-semibold">Humbe — Morfina</span>
+  </div>
+
+  <div class="flex items-center gap-3 bg-black/80 backdrop-blur-md px-4 py-2 rounded-full border border-pink-600/40">
+    <div class="flex items-center gap-1 px-2 paused" id="visualizer">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+    <button onclick="toggleAudio()" id="playBtn" class="text-xs font-cinzel text-pink-200 hover:text-pink-neon transition-colors">
+      <span id="playIcon">▶</span> Reproducir
+    </button>
+  </div>
+</header>
+
+<main class="w-full max-w-2xl px-4 py-8 z-20 flex-1 flex flex-col justify-center">
+
+  <section id="hero" class="text-center py-10 flex flex-col items-center">
+    
+    <div class="flex items-end justify-center gap-8 mb-8 relative">
+      
+      <!-- Monster Energy Can SVG -->
+      <div class="w-12 h-20 relative transform -rotate-12" title="Monster">
+        <svg viewBox="0 0 60 110" class="w-full h-full drop-shadow-[0_0_10px_rgba(57,255,20,0.4)]">
+          <!-- Can body -->
+          <rect x="5" y="10" width="50" height="90" rx="6" fill="#111" stroke="#333" stroke-width="2"/>
+          <ellipse cx="30" cy="10" rx="25" ry="6" fill="#444"/>
+          <ellipse cx="30" cy="100" rx="25" ry="6" fill="#222"/>
+          <!-- Monster M Logo -->
+          <path d="M15 30 Q 18 60 22 80 M28 25 Q 30 55 30 85 M42 30 Q 39 60 38 80" stroke="#39ff14" stroke-width="4" stroke-linecap="round" fill="none"/>
+          <path d="M15 35 L22 28 L28 40 L34 25 L42 32" fill="none" stroke="#ff2a85" stroke-width="1.5"/>
+        </svg>
+      </div>
+
+      <!-- Goth Hello Kitty SVG -->
+      <div class="w-28 h-28 relative z-10">
+        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_15px_rgba(255,42,133,0.6)]">
+          <!-- Head -->
+          <ellipse cx="50" cy="55" rx="42" ry="32" fill="#fff"/>
+          <!-- Ears -->
+          <path d="M15 35 L25 10 L42 30 Z" fill="#fff"/>
+          <path d="M85 35 L75 10 L58 30 Z" fill="#fff"/>
+          <!-- Eyes (Crosses/Dark) -->
+          <path d="M30 50 L38 58 M38 50 L30 58" stroke="#000" stroke-width="3" stroke-linecap="round"/>
+          <path d="M62 50 L70 58 M70 50 L62 58" stroke="#000" stroke-width="3" stroke-linecap="round"/>
+          <!-- Nose -->
+          <ellipse cx="50" cy="62" rx="4" ry="3" fill="#ff2a85"/>
+          <!-- Whiskers -->
+          <line x1="15" y1="52" x2="5" y1="48" stroke="#000" stroke-width="2"/>
+          <line x1="15" y1="60" x2="5" y1="62" stroke="#000" stroke-width="2"/>
+          <line x1="85" y1="52" x2="95" y1="48" stroke="#000" stroke-width="2"/>
+          <line x1="85" y1="60" x2="95" y1="62" stroke="#000" stroke-width="2"/>
+          <!-- Goth Bow (Black and Neon Pink) -->
+          <path d="M72 20 C60 12 55 25 68 30 C80 25 78 12 72 20 Z" fill="#000" stroke="#ff2a85" stroke-width="2"/>
+          <circle cx="68" cy="24" r="4" fill="#ff2a85"/>
+          <!-- Little bat wing on bow -->
+          <path d="M72 24 Q 85 15 90 25 Q 85 28 80 28 Q 85 35 75 30" fill="#000" stroke="#ff2a85" stroke-width="1"/>
+        </svg>
+      </div>
+
+      <!-- Cigarette with animated smoke SVG -->
+      <div class="w-10 h-20 relative transform rotate-12" title="Cigarrillo">
+        <div class="smoke-container">
+          <div class="smoke-particle"></div>
+          <div class="smoke-particle"></div>
+          <div class="smoke-particle"></div>
+        </div>
+        <svg viewBox="0 0 20 70" class="w-5 h-16 absolute bottom-0 left-1/2 transform -translate-x-1/2">
+          <!-- Cherry -->
+          <rect x="6" y="0" width="8" height="3" fill="#ff2a85"/>
+          <rect x="7" y="3" width="6" height="2" fill="#ffb6c1"/>
+          <!-- Body -->
+          <rect x="6" y="5" width="8" height="45" fill="#e0e0e0"/>
+          <!-- Filter -->
+          <rect x="6" y="50" width="8" height="20" fill="#b8860b"/>
+          <!-- Goth stripe -->
+          <line x1="6" y1="48" x2="14" y1="48" stroke="#000" stroke-width="1"/>
+        </svg>
+      </div>
+
+    </div>
+
+    <h1 class="font-cinzel text-5xl md:text-6xl text-pink-pastel glow-text mb-4 font-bold tracking-widest uppercase">
+      De enero a enero
+    </h1>
+
+    <div class="flex items-center justify-center gap-3 my-4">
+      <span class="text-pink-600">🦇</span>
+      <span class="text-sm font-pixel text-pink-neon tracking-[0.3em]">MALL GOTH ROMANCE</span>
+      <span class="text-pink-600">🦇</span>
+    </div>
+
+    <p class="text-lg italic text-pink-200/80 max-w-md mx-auto mb-10 font-serif">
+      “Hay cosas que no supe decirte de otra manera.”
+    </p>
+
+    <button onclick="startReading()" class="px-10 py-4 rounded-full bg-[#1a0f14] border-2 border-pink-neon text-pink-pastel font-cinzel text-sm tracking-widest hover:bg-pink-neon hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(255,42,133,0.4)] hover:shadow-[0_0_30px_rgba(255,42,133,0.8)] flex items-center gap-3 transform hover:scale-105 mx-auto">
+      <span>🖤</span>
+      <span>COMENZAR</span>
+      <span>🎀</span>
+    </button>
+  </section>
+
+  <div id="reader" class="hidden w-full">
+    
+    <div class="flex justify-center items-center gap-3 mb-8" id="progressBar"></div>
+
+    <!-- CHAPTER 1 -->
+    <section class="chapter-box hidden" id="c1">
+      <div class="alt-card rounded-3xl p-8 md:p-10 text-center">
+        <div class="text-pink-neon text-sm font-pixel mb-2 tracking-[0.2em] uppercase">Capítulo I</div>
+        <h2 class="font-cinzel text-3xl text-pink-pastel mb-6 border-b border-pink-900/50 pb-4 inline-block px-8">
+          Lo que no sé explicar
+        </h2>
+        
+        <div class="text-lg md:text-xl leading-loose whitespace-pre-line text-pink-50/90 font-serif italic my-6">
+¿Cómo expresarte lo que siento,
+si ni con esmero
+entiendo qué me genera este sentimiento,
+ni por qué te pienso de enero a enero?
+
+Se iluminan mis ojos con cada notificación,
+y muere algo en mí con cada segundo que espero;
+se acelera mi pecho, pierde el rumbo mi razón,
+y aunque intento olvidarte, siempre vuelvo a quererte de nuevo.
+        </div>
+        <div class="mt-8 pt-6 border-t border-pink-900/30" id="lock1"></div>
+      </div>
+    </section>
+
+    <!-- CHAPTER 2 -->
+    <section class="chapter-box hidden" id="c2">
+      <div class="alt-card rounded-3xl p-8 md:p-10 text-center">
+        <div class="text-pink-neon text-sm font-pixel mb-2 tracking-[0.2em] uppercase">Capítulo II</div>
+        <h2 class="font-cinzel text-3xl text-pink-pastel mb-6 border-b border-pink-900/50 pb-4 inline-block px-8">
+          Cuando te pienso
+        </h2>
+        
+        <div class="text-lg md:text-xl leading-loose whitespace-pre-line text-pink-50/90 font-serif italic my-6">
+Te pienso en cada momento del día
+y por las noches te imagino;
+le rezo a Dios por tenerte todavía,
+por volver a encontrarte en mi camino.
+
+No soy creyente,
+pero cada vez que te veo,
+un falso profeta entra en mi mente
+y me hace creer en lo que deseo.
+        </div>
+        <div class="mt-8 pt-6 border-t border-pink-900/30" id="lock2"></div>
+      </div>
+    </section>
+
+    <!-- CHAPTER 3 -->
+    <section class="chapter-box hidden" id="c3">
+      <div class="alt-card rounded-3xl p-8 md:p-10 text-center">
+        <div class="text-pink-neon text-sm font-pixel mb-2 tracking-[0.2em] uppercase">Capítulo III</div>
+        <h2 class="font-cinzel text-3xl text-pink-pastel mb-6 border-b border-pink-900/50 pb-4 inline-block px-8">
+          En lo que creo
+        </h2>
+        
+        <div class="text-lg md:text-xl leading-loose whitespace-pre-line text-pink-50/90 font-serif italic my-6">
+Me pide profanar el templo que es tu cuerpo,
+leer la Biblia que guarda cada uno de tus secretos;
+y los únicos profetas en los que creo
+son tus ojos, tu pelo, tu cara y tus gestos.
+
+Tu cuerpo, tu labia, tu manera de reír,
+tu forma de ser y de hacerme sonreír;
+la manera en que consigues iluminar
+los momentos más oscuros de mi caminar.
+        </div>
+        <div class="mt-8 pt-6 border-t border-pink-900/30" id="lock3"></div>
+      </div>
+    </section>
+
+    <!-- CHAPTER 4 -->
+    <section class="chapter-box hidden" id="c4">
+      <div class="alt-card rounded-3xl p-8 md:p-10 text-center">
+        <div class="text-pink-neon text-sm font-pixel mb-2 tracking-[0.2em] uppercase">Capítulo IV</div>
+        <h2 class="font-cinzel text-3xl text-pink-pastel mb-6 border-b border-pink-900/50 pb-4 inline-block px-8">
+          Si alguna vez dudas
+        </h2>
+        
+        <div class="text-lg md:text-xl leading-loose whitespace-pre-line text-pink-50/90 font-serif italic my-6">
+Me preguntas si te amo.
+Qué pregunta tan tonta;
+si algún día te hartas de mis cartas,
+de mis poemas y de todo lo que te escribo,
+te llegará un repartidor con mi corazón
+para que lo guardes contigo
+y encuentres en él la otra parte de mi razón.
+        </div>
+        <div class="mt-8 pt-6 border-t border-pink-900/30" id="lock4"></div>
+      </div>
+    </section>
+
+    <!-- CHAPTER 5 -->
+    <section class="chapter-box hidden" id="c5">
+      <div class="alt-card rounded-3xl p-8 md:p-10 text-center">
+        <div class="text-pink-neon text-sm font-pixel mb-2 tracking-[0.2em] uppercase">Capítulo V</div>
+        <h2 class="font-cinzel text-3xl text-pink-pastel mb-6 border-b border-pink-900/50 pb-4 inline-block px-8">
+          Nunca será suficiente
+        </h2>
+        
+        <div class="text-lg md:text-xl leading-loose whitespace-pre-line text-pink-50/90 font-serif italic my-6">
+Puedo escribirte todos los poemas del mundo
+y aun así sentiré que no te amo suficiente;
+podría escribirte un libro, verso por verso,
+y seguiría sintiendo que me falta algo pendiente.
+
+He pensado en hacerte un libro,
+en escribirte mil poemas,
+pero cada idea es apenas un destello
+que se desvanece con el miedo de que te vayas.
+
+Porque después de cada detalle
+solo quiero que entiendas cuánto te amo;
+que detrás de cada palabra que te regalo
+hay un sentimiento que jamás me guardo.
+
+Para mí, un “te amo” no demuestra lo que siento,
+porque prefiero demostrarlo con cada movimiento;
+con mis acciones, con mi tiempo y mi atención,
+con cada pequeño detalle que nace del corazón.
+
+Y aun así siento que, sin importar cuánto pueda ofrecerte,
+nunca será suficiente para explicarte lo que siento;
+porque podría entregarte el mundo entero
+y seguiría pareciéndome poco para decirte cuánto te quiero.
+        </div>
+
+        <div class="mt-10 pt-8 border-t border-pink-neon/40 text-center space-y-4">
+          <div class="text-pink-neon font-pixel text-lg tracking-[0.3em]">♡ FIN ♡</div>
+          <p class="font-cinzel text-2xl text-pink-pastel italic my-4">
+            “Y aun así, siento que me faltaron palabras.”
+          </p>
+          <p class="text-sm text-pink-200/50 font-serif">Gracias por llegar hasta aquí.</p>
+          
+          <button onclick="resetApp()" class="mt-6 px-6 py-2 rounded-full border border-pink-900 text-pink-400 text-xs font-cinzel tracking-widest hover:bg-pink-neon hover:text-black transition-all">
+            ↻ REINICIAR
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script>
+  const DELAYS = [0, 3600, 10800, 21600, 86400]; // 0h, 1h, 3h, 6h, 24h
+  let currentChapter = 1;
+  let lockTimer = null;
+  let devBypass = false;
+  
+  // Array for goth/coquette floating particles
+  const particlesArray = ['🦇', '🖤', '💔', '♡', '🎀', '🕷️'];
+
+  function startReading() {
+    playMusic();
+    spawnParticles();
+
+    document.getElementById('hero').classList.add('hidden');
+    document.getElementById('reader').classList.remove('hidden');
+
+    showChapter(1);
+  }
+
+  function playMusic() {
+    const audio = document.getElementById('bgMusic');
+    audio.volume = 0.8;
+    
+    // Play audio, user interaction should allow this to pass browser autoplay policies
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        updateUI(true);
+      }).catch(err => {
+        console.error("No se pudo reproducir el audio. Verifica que el archivo exista en la ruta correcta.", err);
+        updateUI(false);
+      });
+    }
+  }
+
+  function toggleAudio() {
+    const audio = document.getElementById('bgMusic');
+    if (audio.paused) {
+      playMusic();
+    } else {
+      audio.pause();
+      updateUI(false);
+    }
+  }
+
+  function updateUI(isPlaying) {
+    const playIcon = document.getElementById('playIcon');
+    const visualizer = document.getElementById('visualizer');
+
+    if (isPlaying) {
+      playIcon.textContent = '⏸';
+      visualizer.classList.remove('paused');
+      visualizer.classList.add('playing');
+    } else {
+      playIcon.textContent = '▶';
+      visualizer.classList.remove('playing');
+      visualizer.classList.add('paused');
+    }
+  }
+
+  function renderProgress() {
+    const bar = document.getElementById('progressBar');
+    bar.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      const dot = document.createElement('button');
+      // Secretly allow skipping if clicked multiple times, or just normally check unlock
+      dot.onclick = () => { if (i <= currentChapter || devBypass) showChapter(i); };
+      
+      let classes = "w-3 h-3 rounded-full transition-all duration-300 transform ";
+      if (i === currentChapter) {
+        classes += "bg-pink-neon scale-150 shadow-[0_0_10px_#ff2a85]";
+      } else if (i < currentChapter) {
+        classes += "bg-pink-pastel border border-pink-neon/50";
+      } else {
+        classes += "bg-[#111] border border-pink-900/50";
+      }
+      dot.className = classes;
+      bar.appendChild(dot);
+    }
+  }
+
+  function showChapter(n) {
+    currentChapter = n;
+    renderProgress();
+
+    document.querySelectorAll('.chapter-box').forEach(el => el.classList.add('hidden'));
+    const target = document.getElementById('c' + n);
+    if (target) {
+      target.classList.remove('hidden');
+    }
+
+    if (n < 5) {
+      setupLock(n);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function setupLock(n) {
+    // Secret dev unlock feature via double clicking the lock area
+    const lockEl = document.getElementById('lock' + n);
+    lockEl.ondblclick = () => {
+      devBypass = true;
+      setupLock(n); 
+    };
+
+    if (devBypass) {
+      lockEl.innerHTML = `
+        <button onclick="showChapter(${n + 1})" class="px-8 py-3 rounded-full bg-pink-neon text-black font-cinzel text-sm font-bold tracking-widest hover:bg-white transition-colors shadow-[0_0_15px_rgba(255,42,133,0.5)]">
+          ABRIR CAPÍTULO ${n + 1} 🖤
+        </button>`;
+      return;
+    }
+
+    const key = 'goth_poem_start_time';
+    let startTime = localStorage.getItem(key);
+    if (!startTime) {
+      startTime = Date.now();
+      localStorage.setItem(key, startTime);
+    }
+
+    const targetTime = Number(startTime) + DELAYS[n] * 1000;
+
+    function tick() {
+      const remaining = Math.max(0, targetTime - Date.now());
+      if (remaining <= 0) {
+        lockEl.innerHTML = `
+          <div class="text-pink-pastel text-sm mb-4 font-serif italic">El siguiente capítulo está listo.</div>
+          <button onclick="showChapter(${n + 1})" class="px-8 py-3 rounded-full bg-pink-neon/10 border border-pink-neon text-pink-neon hover:bg-pink-neon hover:text-black font-cinzel text-sm tracking-widest transition-all duration-300">
+            ABRIR CAPÍTULO ${n + 1} 🖤
+          </button>`;
+        clearInterval(lockTimer);
+        return;
+      }
+
+      lockEl.innerHTML = `
+        <div class="text-xs font-pixel text-pink-600 uppercase tracking-[0.2em] mb-2">Siguiente capítulo en:</div>
+        <div class="font-pixel text-4xl text-pink-pastel tracking-widest mb-2">${formatTime(remaining)}</div>
+        <div class="text-xs text-pink-200/40 italic font-serif">Puedes cerrar la página. El tiempo seguirá contando.</div>
+      `;
+    }
+
+    clearInterval(lockTimer);
+    tick();
+    lockTimer = setInterval(tick, 1000);
+  }
+
+  function formatTime(ms) {
+    let totalSecs = Math.floor(ms / 1000);
+    let days = Math.floor(totalSecs / 86400);
+    totalSecs %= 86400;
+    let hours = Math.floor(totalSecs / 3600);
+    totalSecs %= 3600;
+    let mins = Math.floor(totalSecs / 60);
+    let secs = totalSecs % 60;
+
+    return (days ? String(days).padStart(2, '0') + ':' : '') +
+      String(hours).padStart(2, '0') + ':' +
+      String(mins).padStart(2, '0') + ':' +
+      String(secs).padStart(2, '0');
+  }
+
+  function resetApp() {
+    localStorage.removeItem('goth_poem_start_time');
+    location.reload();
+  }
+
+  function spawnParticles() {
+    const container = document.getElementById('floatingParticles');
+    if (container.dataset.active) return;
+    container.dataset.active = "true";
+
+    setInterval(() => {
+      const p = document.createElement('div');
+      p.className = 'float-item text-opacity-80';
+      p.textContent = particlesArray[Math.floor(Math.random() * particlesArray.length)];
+      p.style.left = Math.random() * 90 + 5 + '%';
+      p.style.fontSize = (14 + Math.random() * 14) + 'px';
+      p.style.animationDuration = (8 + Math.random() * 7) + 's';
+      
+      container.appendChild(p);
+      setTimeout(() => p.remove(), 16000);
+    }, 1500);
+  }
+</script>
+</body>
+</html>
